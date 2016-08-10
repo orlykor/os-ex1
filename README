@@ -1,0 +1,93 @@
+orlykor12, idan0610
+Idan Refaeli (305681132), Orly Koren (203595541)
+EX: 1
+
+FILES:
+README -- This file
+Makefile -- Makefile of the project
+osm.cpp -- The library functions of osm
+
+REMARKS:
+None.
+
+ANSWERS:
+
+Q1:
+the program reciecves an argument.
+in general the program creates two folders and a file inside the folders.
+it maps the file to some address in the memory.
+it writes a few words in the file, then close it, delete it and deletes
+the mapping of the file. at the end it delets the two folders.
+
+more specificly:
+
+mkdir - creates a folder named "Welcome" with permission number 0775 which 
+allows the user(and the group) to write, read and execute the folder.
+then it creates inside the folder another folder named "To" with the same
+permission as the last one.
+
+
+open - opens a file named "OS" (if not exists then with the flag O_CREATE it 
+creates the file.)
+the open recieves  the path of the file, 
+flags- O_WRONLY(write only), O_CREAT(create the file if not exists), O_TRUNC
+(clear all data from the file) and mode(permission)- 0666(read-write).
+return value: the fd-file descriptor - in our case: 3.
+
+
+fstat- recieves the fd number (in our case 3), and structure where data about 
+the file will be stored (such as size, permission etc).
+
+mmap- creates a new mapping in the virutal address space of the calling process. 
+recives the following args: addr - in our case NULL which means that the kernel 
+chooses the address at which to create the mapping.
+length- the length of the mapping that we need to allocate for the file.
+prot- memory protection, flags regarding to updates to the mapping, fd - in our 
+case -1 because MAP_ANONYMOUS is specified in flags. 
+offset- initialized to 0 also because MAP_ANONYMOUS.
+return value: the address in the memory. 
+
+write - writes to the file.
+recieves the fd number (3) and the number of bytes that needed to be written.
+return value: the number of bytes that were written.
+
+close - recieves the fd number (3) and closes the file.
+
+munmap - deletes the mapping for the specified address. 
+recieves the address of the file and it's size.
+ 
+unlink - remove the file with the given path.(the file "OS")
+
+rmdir - remove the folder. (in our case both of them)
+
+finished.
+
+
+
+Q2:
+All the measurements functions are built about the same way: First we check if 
+the given number of iterations is 0, and if so, we change it to 1000 as default. 
+We start a for loop that runs for the given number of iterations, and inside the 
+loop we check the relevant operation 5 times sequentially in order to perform 
+loop unrolling. We check the times before and after the loop using 
+gettimeofday() function. Finally, we take the start and finish times, calculate 
+the difference and convert the result to nanoseconds. We divide the result by 
+5*(number of iterations) (To get the average time for each operation) and return 
+the result. In case of error, we return -1.
+
+osm_operation_time: Measures the time for a simple arithmetic operation - a++.
+
+osm_function_time: Measures the time for an empty function call.
+
+osm_syscall_time: Measures the time for an empty trap into the operating system.
+
+osm_disk_time: Measures the time for accessing the disk - in our case writing 
+into a file.
+
+osm_init: Create a new empty file used for the disk access measurement using 
+openat.
+
+osm_finalizer: Removes the file used for disk access measurement.
+
+measureTimes: Execute all the measurements functions and save the results inside 
+a struct.
